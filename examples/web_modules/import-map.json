@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "dat.gui": "./dat.gui.js",
+    "three": "./three.js",
+    "three/examples/jsm/controls/OrbitControls.js": "./three/examples/jsm/controls/OrbitControls.js",
+    "three/examples/jsm/loaders/RGBELoader.js": "./three/examples/jsm/loaders/RGBELoader.js"
+  }
+}

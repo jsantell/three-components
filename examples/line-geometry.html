@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>@jsantell/three-components - LineGeometry</title>
+      <link type="text/css" rel="stylesheet" href="styles/example.css">
+  </head>
+  <body>
+      <div id="info">
+        <h1>LineGeometry</h1>
+        <h2><a href="https://github.com/jsantell/three-components">@jsantell/three-components</a></h2>
+	<p>TODO</p>
+      </div>
+      <script type="importmap">
+{
+  "imports": {
+    "three": "./web_modules/three.js"
+  }
+}
+      </script>
+      <script type="module">
+import * as THREE from './web_modules/three.js';
+import { OrbitControls } from './web_modules/three/examples/jsm/controls/OrbitControls.js';
+import { App, LineGeometry } from '../src/index.js';
+
+const boneLength = 0.9;
+const boneWidth = 0.03;
+const baseColor = new THREE.Color().setHSL(0.1, 0.8, 0.6);
+const iterations = 3;
+const colorOffset = 0.2;
+const spread = 0.3;
+const rotationLimit = 0.5;
+const showAxes = true;
+window.app = new class extends App {
+  constructor() {
+    super({ alpha: true, antialias: true });
+  }
+
+  init() {
+    this.bones = [];
+    this.root = this.createBone(0);
+    const queue = [this.root];
+
+    while (queue.length) {
+      const bone = queue.shift();
+      const depth = (bone.userData.depth || 0) + 1;
+
+      const next = this.createBone(depth);
+      next.userData.pos = 'center';
+      next.position.set(0, 0, boneLength);
+      bone.add(next);
+
+      if (depth > iterations) {
+        continue;
+      }
+
+      const left = this.createBone(depth);
+      const right = this.createBone(depth);
+      left.userData.pos = 'left';
+      right.userData.pos = 'right';
+      left.name = `left-${depth}`;
+      right.name = `right-${depth}`;
+      left.rotation.y = -spread;
+      right.rotation.y = spread;
+      next.add(left);
+      next.add(right);
+      queue.push(left);
+      queue.push(right);
+    }
+    const geo = new LineGeometry(this.root);
+    this.mesh = new THREE.SkinnedMesh(geo, new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      skinning: true,
+      wireframe: true,
+    }));
+    const skeleton = new THREE.Skeleton(this.bones);
+    this.mesh.bind(skeleton);
+    this.mesh.add(this.root);
+    this.mesh.rotation.x = Math.PI/-2;
+    this.scene.add(this.mesh);
+    this.camera.position.z = 5;
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+  }
+
+  update(time, delta) {
+    const t = time * 0.001;
+    for (let bone of this.bones) {
+      if (bone.userData.pos === 'center') {
+        bone.rotation.y = Math.sin(t) * rotationLimit;
+      }
+      else if (bone.userData.pos === 'left') {
+        //bone.rotation.y = spread + Math.sin(t) * rotationLimit;
+      }
+      else if (bone.userData.pos === 'right') {
+        //bone.rotation.y = -spread + Math.cos(t) * -rotationLimit;
+      }
+    }
+  }
+
+  render(t, delta) {
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  createBone(depth) {
+    const bone = new THREE.Bone();
+    if (showAxes) {
+      bone.add(new THREE.AxesHelper(0.2));
+    }
+    bone.userData.depth = depth;
+    bone.width = (iterations - depth) * boneWidth + 0.01;
+    bone.color = new THREE.Color().setHSL(colorOffset * depth, 0.9, 0.6);
+    this.bones.push(bone);
+    return bone;
+  }
+}
+      </script>
+</body>
+</html>

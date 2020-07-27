@@ -1,0 +1,53 @@
+@font-face{
+    font-family: 'Fira Sans';
+    src: url('../fonts/FiraSans-Light.eot');
+    src: url('../fonts/FiraSans-Light.eot') format('embedded-opentype'),
+         url('../fonts/FiraSans-Light.woff2') format('woff2'),
+         url('../fonts/FiraSans-Light.woff') format('woff'),
+         url('../fonts/FiraSans-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+html, body {
+  margin: 0;
+  font-family: 'Fira Sans', 'Helvetica', sans-serif;
+  font-weight: 300;
+  color: #333;
+}
+
+html, body, canvas {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+canvas {
+  position: absolute;
+}
+
+body[demo] #info,
+body[demo] .dg {
+  display: none; 
+}
+
+#info {
+  width: 250px;
+  background-color: #333;
+  color: white;
+  position: absolute;
+  padding: 10px;
+  z-index: 10;
+  font-size: 11px;
+}
+
+#info h1, h2 {
+  margin: 0;
+}
+#info h1 {
+  font-size: 14px;
+}
+#info h2 {
+  font-size: 11px;
+}
+#info a {
+  color: #ccc;
+}

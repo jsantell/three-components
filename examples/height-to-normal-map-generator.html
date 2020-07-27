@@ -1,0 +1,181 @@
+<!doctype>
+<html>
+    <head>
+      <title>@jsantell/three-components - HeightToNormalMapGenerator</title>
+      <link type="text/css" rel="stylesheet" href="styles/example.css">
+<style>
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+}
+
+#images {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+}
+
+img {
+  border: 1px solid #999;
+  height: 128px;
+  width: 128px;
+  display: inline-block;
+}
+
+body[demo] img {
+  display: none;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+#preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+</style>
+</head>
+<body>
+  <div id="info">
+    <h1>HeightToNormalMapGenerator</h1>
+    <h2><a href="https://github.com/jsantell/three-components">@jsantell/three-components</a></h2>
+    <p>Generates a normal map from a height map.</p>
+    <p>Textures from <a href="https://hdrihaven.com">HDRI Haven</a>, <a href="https://texturehaven.com">Texture Haven</a> (CC0)</p>
+  </div>
+  <input type="file" id="file-picker" accept="image/png" />
+  <canvas id="preview"></canvas>
+  <div id="images">
+    <img id="input" title="Input height map"></img>
+    <img id="output" title="Output normal map"></img>
+  </div>
+  <script type="importmap">
+{
+  "imports": {
+    "three": "./web_modules/three.js"
+  }
+}
+  </script>
+  <script type="module">
+import * as THREE from './web_modules/three.js';
+import { OrbitControls } from './web_modules/three/examples/jsm/controls/OrbitControls.js';
+import { RGBELoader } from './web_modules/three/examples/jsm/loaders/RGBELoader.js';
+import dat from './web_modules/dat.gui.js';
+import { App, HeightToNormalMapGenerator, TextureUtils } from '../src/index.js';
+
+const DEFAULT_SOURCE = './images/large_square_pattern_01_disp_1k.png';
+const ENVMAP_URL = './images/quarry_03_1k.hdr';
+const $input = document.querySelector('#input');
+const $file = document.querySelector('#file-picker');
+const $output = document.querySelector('#output');
+const $preview = document.querySelector('#preview');
+const loader = new THREE.TextureLoader();
+
+window.app = new class extends App {
+  constructor() {
+    super({ antialias: true, canvas: $preview });
+  }
+
+  init() {
+    this.renderer.setClearColor(0xffffff);
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+
+    $file.addEventListener('change', e => this.onImageChange(e));
+    this.inputTexture = null;
+    this.guiConfig = {
+      selectHeightMap: () => {
+        $file.click();        
+      },
+      geometry: 'Box',
+      strength: 10, 
+      speed: 3, 
+    };
+
+    this.gui = new dat.GUI();
+    this.gui.add(this.guiConfig, 'selectHeightMap');
+    this.gui.add(this.guiConfig, 'geometry', [
+      'Box', 'Sphere', 'Cone', 
+    ]).onChange(() => this.generateMesh());
+    this.gui.add(this.guiConfig, 'strength', 1, 20).onChange(() => this.generateNormalMap());
+    this.gui.add(this.guiConfig, 'speed', 0, 10);
+    
+    this.material = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      metalness: 0,
+      roughness: 1,
+    });
+    const loader = new RGBELoader().setDataType(THREE.UnsignedByteType);
+    loader.load(ENVMAP_URL, texture => {
+      const pmrem = new THREE.PMREMGenerator(this.renderer);
+      const env = pmrem.fromEquirectangular(texture);
+      pmrem.dispose();
+      this.material.envMap = env.texture;
+      this.material.envMapIntensity = 0.5;
+      this.material.needsUpdate = true;
+    });
+
+    this.camera.position.set(-1, 1, 2);
+    this.camera.lookAt(0, 0, 0);
+    this.generateMesh();
+
+    this.loadSource(DEFAULT_SOURCE);
+  }
+
+  generateMesh() {
+    if (this.mesh) {
+      this.scene.remove(this.mesh);
+    }
+
+    let geometry;
+    switch (this.guiConfig.geometry) {
+      case 'Box': geometry = new THREE.BoxBufferGeometry(); break;
+      case 'Sphere': geometry = new THREE.SphereBufferGeometry(1, 32, 32); break;
+      case 'Cone': geometry = new THREE.ConeBufferGeometry(1, 1, 32); break;
+    }
+
+    this.mesh = new THREE.Mesh(geometry, this.material);
+    this.scene.add(this.mesh);
+  }
+
+  onImageChange() {
+    if ($file.files.length === 1) {
+      const url = window.URL.createObjectURL($file.files[0]);
+      this.loadSource(url);
+    }
+  }
+
+  async loadSource(url) {
+    this.inputTexture = await new Promise(resolve => loader.load(url, resolve));
+    $input.src = url;
+    this.generateNormalMap();
+  }
+
+  generateNormalMap() {
+    const { width, height } = this.inputTexture.image;
+    const target = HeightToNormalMapGenerator(this.renderer, this.inputTexture, {
+      width,
+      height,
+      strength: this.guiConfig.strength,
+    });
+
+    const imageURL = TextureUtils.renderTargetToDataURL(this.renderer, target);
+    $output.src = imageURL;
+
+    this.material.normalMap = target.texture;
+    this.material.needsUpdate = true;
+  }
+
+  update(t, delta) {
+    const d = delta * 0.0001 * this.guiConfig.speed;
+    this.mesh.rotation.y += d;
+  }
+}();
+  </script>
+</body>
+</html>

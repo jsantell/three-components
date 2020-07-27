@@ -1,0 +1,51 @@
+{
+  "name": "@jsantell/three-components",
+  "version": "1.1.0",
+  "description": "Collection of three.js objects, utilities and helpers.",
+  "type": "module",
+  "module": "./src/index.js",
+  "main": "./src/index.js",
+  "scripts": {
+    "docs": "rm -rf docs/ && jsdoc -d docs src/*.js -t node_modules/docdash",
+    "serve": "http-server . -c-1",
+    "dev": "npm run serve & chokidar \"src/**/*.js\" -c \"npm run build\"",
+    "build": "snowpack install --dest examples/web_modules",
+    "preversion": "npm install",
+    "version": "npm run docs",
+    "postversion": "git push && git push --tags && npm publish"
+  },
+  "author": "Jordan Santell <jordan@jsantell.com>",
+  "license": "MIT",
+  "keywords": [
+    "three",
+    "three.js"
+  ],
+  "repository": "https://github.com/jsantell/three-components",
+  "devDependencies": {
+    "chokidar-cli": "^2.1.0",
+    "dat.gui": "^0.7.6",
+    "docdash": "^1.2.0",
+    "http-server": "^0.12.0",
+    "jsdoc": "^3.6.3",
+    "snowpack": "^2.6.4",
+    "three": "^0.118.0"
+  },
+  "dependencies": {
+    "three": "*"
+  },
+  "snowpack": {
+    "exclude": [
+      "src/**",
+      "scripts/**",
+      "examples/**",
+      "node_modules/**",
+      "docs/**"
+    ],
+    "install": [
+      "three",
+      "three/examples/jsm/controls/OrbitControls.js",
+      "three/examples/jsm/loaders/RGBELoader.js",
+      "dat.gui"
+    ]
+  }
+}
