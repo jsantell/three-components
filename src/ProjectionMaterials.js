@@ -1,9 +1,7 @@
 /**
- * @license
- * ProjectionMaterials from @jsantell/three-components
- * Source <https://github.com/jsantell/three-components>
- * Released under MIT License <https://github.com/jsantell/three-components/blob/master/LICENSE>
- * Copyright © 2020 Jordan Santell
+ * @license MIT
+ * @copyright Copyright © 2020 Jordan Santell
+ * @see https://github.com/jsantell/three-components
  */
 
 import { ShaderMaterial, ShaderLib, UniformsUtils, Matrix4, Color } from 'three';
@@ -25,6 +23,16 @@ vec4 projPosition = projectionMatrix * viewMatrix * altMVP;
 gl_Position = mix(gl_Position, projPosition, projectionBlend);
 `;
 
+/**
+ * A THREE.MeshPhongMaterial based material that can blend the standard projection/view matrices by alternative matrices.
+ *
+ * @extends THREE.ShaderMaterial
+ * @param {Object} config
+ * @param {THREE.Matrix4} config.altProjectionMatrix - Alternate projection matrix.
+ * @param {THREE.Matrix4} config.altViewMatrix - Alternate view matrix.
+ * @param {Number} config.projectionBlend - Normalized value indicating the interpolation between the standard projection and view matrices, and the alternates.
+ * @param {THREE.Color} config.color - Diffuse material color.
+ */
 export class ProjectionPhongMaterial extends ShaderMaterial {
   constructor({ altProjectionMatrix, altViewMatrix, projectionBlend, color }) {
     let vertexShader = ShaderLib.phong.vertexShader;
@@ -46,6 +54,19 @@ export class ProjectionPhongMaterial extends ShaderMaterial {
   }
 };
 
+/**
+ * A THREE.MeshBasicMaterial based material that can blend the standard projection/view matrices by alternative matrices.
+ *
+ * @extends THREE.ShaderMaterial
+ * @param {Object} config
+ * @param {THREE.Matrix4} config.altProjectionMatrix - Alternate projection matrix.
+ * @param {THREE.Matrix4} config.altViewMatrix - Alternate view matrix.
+ * @param {Number} config.projectionBlend - Normalized value indicating the interpolation between the standard projection and view matrices, and the alternates.
+ * @param {THREE.Color} config.color - Diffuse material color.
+ * @param {Boolean} config.wireframe - THREE.BasicMaterial wireframe.
+ * @param {Boolean} config.transparent - THREE.BasicMaterial transparent.
+ * @param {Number} config.opacity - THREE.BasicMaterial opacity.
+ */
 export class ProjectionBasicMaterial extends ShaderMaterial {
   constructor({ wireframe, transparent, opacity, color, altProjectionMatrix, altViewMatrix, projectionBlend }) {
     let vertexShader = ShaderLib.basic.vertexShader;
@@ -70,6 +91,15 @@ export class ProjectionBasicMaterial extends ShaderMaterial {
   }
 };
 
+/**
+ * A THREE.LineBasicMaterial based material that can blend the standard projection/view matrices by alternative matrices.
+ *
+ * @param {Object} config
+ * @param {THREE.Matrix4} config.altProjectionMatrix - Alternate projection matrix.
+ * @param {THREE.Matrix4} config.altViewMatrix - Alternate view matrix.
+ * @param {Number} config.projectionBlend - Normalized value indicating the interpolation between the standard projection and view matrices, and the alternates.
+ * @param {THREE.Color} config.color - Diffuse material color.
+ */
 export class ProjectionLineMaterial extends ShaderMaterial {
   constructor({ color, altProjectionMatrix, altViewMatrix, projectionBlend }) {
     let vertexShader = ShaderLib.basic.vertexShader;

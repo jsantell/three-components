@@ -1,9 +1,7 @@
 /**
- * @license
- * LineGeometry from @jsantell/three-components
- * Source <https://github.com/jsantell/three-components>
- * Released under MIT License <https://github.com/jsantell/three-components/blob/master/LICENSE>
- * Copyright © 2020 Jordan Santell
+ * @license MIT
+ * @copyright Copyright © 2020 Jordan Santell
+ * @see https://github.com/jsantell/three-components
  */
 
 import { BufferGeometry, Color, Float32BufferAttribute, Quaternion, Uint16BufferAttribute, Vector3 } from 'three';
