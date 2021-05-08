@@ -7,7 +7,6 @@
   "main": "./src/index.js",
   "scripts": {
     "docs": "rm -rf docs/ && jsdoc -d docs src/*.js -t node_modules/docdash",
-    "serve": "http-server . -c-1",
     "build-deps": "npm install && ./scripts/build-deps.sh",
     "preversion": "npm install",
     "version": "npm run docs",
@@ -23,7 +22,6 @@
   "devDependencies": {
     "dat.gui": "^0.7.6",
     "docdash": "^1.2.0",
-    "http-server": "^0.12.0",
     "jsdoc": "^3.6.3",
     "three": "^0.118.0"
   },
