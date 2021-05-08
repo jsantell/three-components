@@ -49,12 +49,12 @@ input[type="file"] {
   <script type="importmap">
 {
   "imports": {
-    "three": "./web_modules/three.js"
+    "three": "./web_modules/three/build/three.module.js"
   }
 }
   </script>
   <script type="module">
-import * as THREE from './web_modules/three.js';
+import * as THREE from './web_modules/three/build/three.module.js';
 import { RGBELoader } from './web_modules/three/examples/jsm/loaders/RGBELoader.js';
 import { App, TextureUtils } from '../src/index.js';
 

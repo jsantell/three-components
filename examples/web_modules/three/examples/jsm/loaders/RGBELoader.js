@@ -1,8 +1,19 @@
-import { DataTextureLoader, UnsignedByteType, HalfFloatType, FloatType, RGBFormat, RGBEFormat, LinearEncoding, LinearFilter, RGBEEncoding, NearestFilter } from '../../../../three.js';
-
 /**
  * @author Nikos M. / https://github.com/foo123/
  */
+
+import {
+	DataTextureLoader,
+	FloatType,
+	HalfFloatType,
+	LinearEncoding,
+	LinearFilter,
+	NearestFilter,
+	RGBEEncoding,
+	RGBEFormat,
+	RGBFormat,
+	UnsignedByteType
+} from "../../../build/three.module.js";
 
 // https://github.com/mrdoob/three.js/issues/5552
 // http://en.wikipedia.org/wiki/RGBE_image_format

@@ -1,5 +1,3 @@
-import { Vector3, MOUSE, TOUCH, Quaternion, Spherical, EventDispatcher, Vector2 } from '../../../../three.js';
-
 /**
  * @author qiao / https://github.com/qiao
  * @author mrdoob / http://mrdoob.com
@@ -8,6 +6,16 @@ import { Vector3, MOUSE, TOUCH, Quaternion, Spherical, EventDispatcher, Vector2 
  * @author erich666 / http://erichaines.com
  * @author ScieCode / http://github.com/sciecode
  */
+
+import {
+	EventDispatcher,
+	MOUSE,
+	Quaternion,
+	Spherical,
+	TOUCH,
+	Vector2,
+	Vector3
+} from "../../../build/three.module.js";
 
 // This set of controls performs orbiting, dollying (zooming), and panning.
 // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
@@ -558,6 +566,12 @@ var OrbitControls = function ( object, domElement ) {
 
 	}
 
+	function handleMouseUp( /*event*/ ) {
+
+		// no-op
+
+	}
+
 	function handleMouseWheel( event ) {
 
 		if ( event.deltaY < 0 ) {
@@ -758,6 +772,12 @@ var OrbitControls = function ( object, domElement ) {
 
 	}
 
+	function handleTouchEnd( /*event*/ ) {
+
+		// no-op
+
+	}
+
 	//
 	// event handlers - FSM: listen for events and reset state
 	//
@@ -911,6 +931,8 @@ var OrbitControls = function ( object, domElement ) {
 	function onMouseUp( event ) {
 
 		if ( scope.enabled === false ) return;
+
+		handleMouseUp( event );
 
 		scope.domElement.ownerDocument.removeEventListener( 'mousemove', onMouseMove, false );
 		scope.domElement.ownerDocument.removeEventListener( 'mouseup', onMouseUp, false );
@@ -1091,6 +1113,8 @@ var OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
+		handleTouchEnd( event );
+
 		scope.dispatchEvent( endEvent );
 
 		state = STATE.NONE;
@@ -1161,4 +1185,4 @@ var MapControls = function ( object, domElement ) {
 MapControls.prototype = Object.create( EventDispatcher.prototype );
 MapControls.prototype.constructor = MapControls;
 
-export { MapControls, OrbitControls };
+export { OrbitControls, MapControls };

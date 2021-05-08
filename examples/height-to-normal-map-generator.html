@@ -57,15 +57,15 @@ input[type="file"] {
   <script type="importmap">
 {
   "imports": {
-    "three": "./web_modules/three.js"
+    "three": "./web_modules/three/build/three.module.js"
   }
 }
   </script>
   <script type="module">
-import * as THREE from './web_modules/three.js';
-import { OrbitControls } from './web_modules/three/examples/jsm/controls/OrbitControls.js';
-import { RGBELoader } from './web_modules/three/examples/jsm/loaders/RGBELoader.js';
+import * as THREE from './web_modules/three/build/three.module.js';
 import dat from './web_modules/dat.gui.js';
+import { RGBELoader } from './web_modules/three/examples/jsm/loaders/RGBELoader.js';
+import { OrbitControls } from './web_modules/three/examples/jsm/controls/OrbitControls.js';
 import { App, HeightToNormalMapGenerator, TextureUtils } from '../src/index.js';
 
 const DEFAULT_SOURCE = './images/large_square_pattern_01_disp_1k.png';

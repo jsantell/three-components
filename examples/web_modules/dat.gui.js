@@ -2518,5 +2518,6 @@ var index = {
   GUI: GUI$1
 };
 
+export { color, controllers, dom$1 as dom, gui, GUI$1 as GUI };
 export default index;
-export { GUI$1 as GUI, color, controllers, dom$1 as dom, gui };
+//# sourceMappingURL=dat.gui.module.js.map
