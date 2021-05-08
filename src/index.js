@@ -15,3 +15,4 @@ export { HeightToNormalMapGenerator } from './HeightToNormalMapGenerator.js';
 export { WireframeHelper } from './WireframeHelper.js';
 export * as utils from './utils.js';
 export * as TextureUtils from './TextureUtils.js';
+export * from './ProjectionMaterials.js';

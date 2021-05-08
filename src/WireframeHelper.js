@@ -7,7 +7,7 @@
  * Copyright © 2019 Jordan Santell
  */
 
-import { LineSegments, EdgesGeometry, LineBasicMaterial } from 'three';
+import { LineSegments, EdgesGeometry } from 'three';
 
 // via https://stackoverflow.com/questions/31539130/display-wireframe-and-solid-color/31541369#31541369
 

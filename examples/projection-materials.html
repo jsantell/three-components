@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>@jsantell/three-components - ProjectionMaterials</title>
+      <link type="text/css" rel="stylesheet" href="styles/example.css">
+  </head>
+  <body>
+      <div id="info">
+        <h1>ProjectionMaterials</h1>
+        <h2><a href="https://github.com/jsantell/three-components">@jsantell/three-components</a></h2>
+        <p>Materials that can blend standard projection/view matrices by alternative matrices.</p>
+      </div>
+      <script type="importmap">
+{
+  "imports": {
+    "three": "./web_modules/three.js"
+  }
+}
+      </script>
+      <script type="module">
+import * as THREE from './web_modules/three.js';
+import { OrbitControls } from './web_modules/three/examples/jsm/controls/OrbitControls.js';
+import dat from './web_modules/dat.gui.js';
+import {
+  App, FrustumGeometry, WireframeHelper, ProjectionPhongMaterial, ProjectionBasicMaterial, ProjectionLineMaterial
+} from '../src/index.js';
+
+window.app = new class extends App {
+  constructor() {
+    super({ alpha: true, antialias: true });
+  }
+
+  init() {
+    this.lineMaterial = new ProjectionLineMaterial({
+      color: 0x23e4c0,
+    });
+    this.phongMaterial = new ProjectionPhongMaterial({
+      color: 0x01b2bd,
+    });
+    this.basicMaterial = new ProjectionBasicMaterial({
+      color: 0xdbfff2,
+      transparent: true,
+      opacity: 0.7,
+    });
+    this.distortionCamera = new THREE.PerspectiveCamera(30, 1.6, 1.5, 5);
+    this.distortionCamera.position.z = 3;
+    this.scene.add(this.distortionCamera);
+    this.projectionBlend = 0;
+
+    [this.lineMaterial, this.phongMaterial, this.basicMaterial].forEach(mat => {
+      mat.uniforms.altViewMatrix.value = this.distortionCamera.matrixWorldInverse;
+      mat.uniforms.altProjectionMatrix.value = this.distortionCamera.projectionMatrix;
+      mat.uniforms.projectionBlend.value = 0;
+    });
+
+    this.oCamera = new THREE.OrthographicCamera();
+    this.onResize();
+    this.oCamera.position.set(-15, 15, 15);
+    this.oCamera.lookAt(new THREE.Vector3(0, 0, 0));
+    this.scene.add(this.oCamera);
+
+    const xCount = 8;
+    const yCount = 4;
+    for (let x = 0; x < xCount; x++) {
+      for (let y = 0; y < yCount; y++) {
+        const clone = new THREE.Mesh(new THREE.BoxBufferGeometry(0.5, 0.5, 0.5), this.phongMaterial);
+        clone.position.set(x - xCount / 2, 0, (y - yCount / 2));
+        this.scene.add(clone);
+        this.scene.add(new WireframeHelper(clone, this.lineMaterial));
+      }
+    }
+    this.frustumHelper = new THREE.Mesh(new FrustumGeometry(), this.basicMaterial);
+    this.frustumHelper.geometry.setFromMatrix(this.distortionCamera.projectionMatrix);
+    this.frustumHelperWireframe = new WireframeHelper(this.frustumHelper, this.lineMaterial);
+    this.distortionCamera.add(this.frustumHelper);
+    this.scene.add(this.frustumHelperWireframe);
+
+    this.dLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    this.dLight.position.set(-1, 5, 3);
+    this.dLight.lookAt(new THREE.Vector3(0, -2, -1));
+    this.dLight.castShadow = true;
+    this.light = new THREE.AmbientLight(0xffffff, 0.3);
+    this.scene.add(this.dLight);
+    this.scene.add(this.light);
+    this.scene.add(this.dLight.target);
+    this.renderer.setClearColor(0xffffff);
+
+    this.grid = new THREE.GridHelper(50, 50, new THREE.Color(0xaaaaaa), new THREE.Color(0xcccccc));
+    this.scene.add(this.grid);
+    this.grid.matrixAutoUpdate = false;
+
+    this.guiConfig = {
+      projectionBlend: 1,
+      near: this.distortionCamera.near,
+      far: this.distortionCamera.far,
+      fov: this.distortionCamera.fov,
+      aspect: this.distortionCamera.aspect,
+    };
+    this.gui = new dat.GUI();
+    this.gui.add(this.guiConfig, 'projectionBlend', 0, 1);
+    this.gui.add(this.guiConfig, 'near', 0.01, 12);
+    this.gui.add(this.guiConfig, 'far', 1, 20);
+    this.gui.add(this.guiConfig, 'fov', 1, 100);
+    this.gui.add(this.guiConfig, 'aspect', 0.2, 3);
+  }
+
+  update(t, delta) {
+    if (this.projectionBlend !== this.guiConfig.projectionBlend ||
+        this.distortionCamera.near !== this.guiConfig.near ||
+        this.distortionCamera.far  !== this.guiConfig.far  ||
+        this.distortionCamera.fov  !== this.guiConfig.fov  ||
+        this.distortionCamera.aspect !== this.guiConfig.aspect) {
+      this.distortionCamera.near = this.guiConfig.near;
+      this.distortionCamera.far  = this.guiConfig.far;
+      this.distortionCamera.fov  = this.guiConfig.fov;
+      this.distortionCamera.aspect = this.guiConfig.aspect;
+      this.distortionCamera.updateProjectionMatrix();
+      this.frustumHelper.geometry.setFromMatrix(this.distortionCamera.projectionMatrix);
+      this.frustumHelperWireframe.updateGeometry();
+      [this.lineMaterial, this.phongMaterial, this.basicMaterial].forEach(mat => {
+        mat.uniforms.altViewMatrix.value = this.distortionCamera.matrixWorldInverse;
+        mat.uniforms.altProjectionMatrix.value = this.distortionCamera.projectionMatrix;
+        mat.uniforms.projectionBlend.value = this.guiConfig.projectionBlend;
+      });
+    }
+  }
+
+  render(t, delta) {
+    this.renderer.render(this.scene, this.oCamera);
+  }
+
+  onResize() {
+    const frustumSize = 6.5;
+    const near = 0.01;
+    const far = 1000;
+    const aspect = window.innerWidth / window.innerHeight;
+    this.oCamera.top = frustumSize / 2;
+    this.oCamera.right = aspect * this.oCamera.top;
+    this.oCamera.bottom = -this.oCamera.top;
+    this.oCamera.left = -this.oCamera.right;
+    this.oCamera.near = near;
+    this.oCamera.far = far;
+    this.oCamera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+}
+</script>
+</body>
+</html>
